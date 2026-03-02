@@ -36,12 +36,12 @@ fun HomeRoot(
 ) {
     val homeViewModel = koinViewModel<HomeViewModel>()
     val state by homeViewModel.homeState.collectAsStateWithLifecycle()
-    val query by homeViewModel.query.collectAsStateWithLifecycle("")
+//    val query by homeViewModel.query.collectAsStateWithLifecycle("")
 
     HomePage(
         modifier ,
         state = state,
-        query = query,
+//        query = query,
         onAction = {
             homeViewModel.onAction(it)
         }
@@ -52,7 +52,7 @@ fun HomeRoot(
 fun HomePage(
     modifier: Modifier = Modifier ,
     state: HomeState = HomeState() ,
-    query : String ,
+//    query : String ,
     onAction : (action : HomeAction)->Unit
 ) {
 
@@ -67,7 +67,7 @@ fun HomePage(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             HomeTopBar(
-                query = query,
+                query = state.query,
                 onQueryChange = {
                     onAction(HomeAction.OnQueryChange(it))
                 }

@@ -26,27 +26,27 @@ class HomeViewModel(
 
     private var dishes = MutableStateFlow<List<Dish>>(emptyList())
 
-    private val _filterTab = MutableStateFlow(DishFilterTab.DISH)
-    private val _filterOption = MutableStateFlow("")
-
-    private val _query = MutableStateFlow("")
-    val query = _query
-        .asStateFlow()
-
     private val _filterState = MutableStateFlow(FilterState())
 
     val homeState : StateFlow<HomeState> = combine(
         dishes ,
-        _filterTab ,
-        _filterOption ,
-        _query
-    ){ dishes , tab , filter , searchQuery->
-        val filtered = filterDishes(dishes,tab,filter,searchQuery)
-        val options = getOtherFilterOptions(tab)
+        _filterState
+    ){ dishes , filterState->
+
+        //-----FILTER DISHES------
+        val filtered = filterDishes(
+            dishes ,
+            filterState.filterTab ,
+            filterState.filter ,
+            filterState.query
+        )
+        val options = getOtherFilterOptions(filterState.filterTab)
+
         HomeState(
             filtered ,
             options,
-            selectedFilter = filter
+            selectedFilter = filterState.filter,
+            query = filterState.query
         )
     }.onStart {
         getDishes()
@@ -76,6 +76,10 @@ class HomeViewModel(
         }
     }
 
+    /**
+     * Filter on the basis of tab, selected option & search query
+     * @author zyzz
+    */
     private fun filterDishes(
         dishes: List<Dish> ,
         tab: DishFilterTab ,
@@ -101,8 +105,8 @@ class HomeViewModel(
             log {
                 "query change : $text"
             }
-            _query.update {
-                text.trim()
+            _filterState.update {
+                it.copy(query = text)
             }
 
         }
@@ -125,7 +129,7 @@ class HomeViewModel(
                         result.data
                     }
 
-                    onTabFilterChange(_filterTab.value)
+//                    onTabFilterChange(_filterTab.value)
                 }
             }
         }
@@ -140,25 +144,29 @@ class HomeViewModel(
         }
         viewModelScope.launch {
 
-            _filterTab.update {
-                filterTab
-            }
-            _filterOption.update {
-                ""
+            _filterState.update {
+                it.copy(
+                    filterTab = filterTab,
+                    filter = ""
+                )
             }
         }
     }
     private fun onFilterOptionChange(filter : String){
         viewModelScope.launch {
-            _filterOption.update {
-                filter
+            _filterState.update {
+                it.copy(filter = filter)
             }
         }
     }
 
+    /**
+     * Get all filterable options for the selected TAB
+     * @author zyzz
+    */
     private fun getOtherFilterOptions(filterTab: DishFilterTab) : List<String>{
         log {
-            "Filtering options for ${_filterTab.value}"
+            "Filtering options for ${filterTab}"
         }
         val filters = when(filterTab){
             DishFilterTab.DISH -> {

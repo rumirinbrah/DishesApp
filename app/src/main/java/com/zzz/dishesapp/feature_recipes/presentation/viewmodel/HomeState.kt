@@ -7,6 +7,7 @@ data class HomeState(
     val filteredDishes : List<Dish> = emptyList(),
     val filterOptions : List<String> = emptyList(),
     val selectedFilter : String = "",
+    val query: String = ""
 )
 
 data class FilterState(

@@ -10,10 +10,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.dishesapp.core.presentation.VerticalSpace
+import com.zzz.dishesapp.feature_recipes.domain.model.Dish
 import com.zzz.dishesapp.feature_recipes.presentation.components.DishFilterTabRow
 import com.zzz.dishesapp.feature_recipes.presentation.components.DishItem
 import com.zzz.dishesapp.feature_recipes.presentation.components.FilterOptionChip
@@ -32,7 +38,8 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeRoot(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier ,
+    isPhone: Boolean
 ) {
     val homeViewModel = koinViewModel<HomeViewModel>()
     val state by homeViewModel.homeState.collectAsStateWithLifecycle()
@@ -40,11 +47,12 @@ fun HomeRoot(
 
     HomePage(
         modifier ,
-        state = state,
+        state = state ,
 //        query = query,
         onAction = {
             homeViewModel.onAction(it)
-        }
+        } ,
+        isPhone = isPhone
     )
 }
 
@@ -53,7 +61,8 @@ fun HomePage(
     modifier: Modifier = Modifier ,
     state: HomeState = HomeState() ,
 //    query : String ,
-    onAction : (action : HomeAction)->Unit
+    onAction: (action: HomeAction) -> Unit ,
+    isPhone: Boolean
 ) {
 
     Box(
@@ -62,12 +71,11 @@ fun HomePage(
         Column(
             modifier
                 .fillMaxWidth()
-                .padding(8.dp)
-            ,
+                .padding(8.dp) ,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             HomeTopBar(
-                query = state.query,
+                query = state.query ,
                 onQueryChange = {
                     onAction(HomeAction.OnQueryChange(it))
                 }
@@ -77,7 +85,7 @@ fun HomePage(
 
             //-------FILTER ROW--------
             DishFilterTabRow(
-                Modifier.align(Alignment.CenterHorizontally),
+                Modifier.align(Alignment.CenterHorizontally) ,
                 onTabChange = {
                     onAction(HomeAction.FilterTabChange(it))
                 }
@@ -91,7 +99,7 @@ fun HomePage(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    "Filter options",
+                    "Filter options" ,
                     fontWeight = FontWeight.Bold
                 )
 
@@ -102,13 +110,13 @@ fun HomePage(
 
                 AnimatedContent(
                     state.filterOptions
-                ) {filters->
+                ) { filters ->
                     LazyRow(
                         Modifier
-                            .padding(vertical = 8.dp , horizontal = 26.dp),
+                            .padding(vertical = 8.dp , horizontal = 26.dp) ,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(filters){filter->
+                        items(filters) { filter ->
                             FilterOptionChip(
                                 text = filter ,
                                 onClick = {
@@ -122,26 +130,79 @@ fun HomePage(
 
             }
 
-            VerticalSpace()
             //-------DISHES--------
-            AnimatedContent(state.filteredDishes) {dishes->
-
-                FlowRow(
-                    Modifier.fillMaxWidth()
-    //                    .background(Color.Gray)
-    //                    .padding(horizontal = 16.dp)
-                    ,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    dishes.onEach { dish ->
-                        DishItem(
-                            dish = dish
-                        )
-                    }
+            if (isPhone) {
+                DishesGrid(
+                    dishes = state.filteredDishes
+                )
+            } else {
+                AnimatedContent(state.filteredDishes) { dishes ->
+                    DishesFlowContainer(
+                        Modifier ,
+                        dishes = dishes
+                    )
                 }
             }
+
 
         }
     }
 }
+
+@Composable
+fun DishesFlowContainer(
+    modifier: Modifier = Modifier ,
+    dishes: List<Dish>
+) {
+
+    VerticalSpace()
+    FlowRow(
+        modifier.fillMaxWidth() ,
+        //                    .background(Color.Gray)
+        //                    .padding(horizontal = 16.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp) ,
+        verticalArrangement = Arrangement.spacedBy(16.dp) ,
+    ) {
+        dishes.onEach { dish ->
+            DishItem(
+                dish = dish
+            )
+        }
+    }
+
+}
+
+@Composable
+fun DishesGrid(
+    modifier: Modifier = Modifier ,
+    dishes: List<Dish> ,
+    maxItems: Int = 2 ,
+) {
+    val state = rememberLazyGridState()
+
+    LaunchedEffect(dishes) {
+        state.scrollToItem(0)
+    }
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(maxItems) ,
+        modifier.fillMaxWidth() ,
+        horizontalArrangement = Arrangement.spacedBy(8.dp) ,
+        verticalArrangement = Arrangement.spacedBy(16.dp) ,
+        state = state
+    ) {
+        items(
+            dishes ,
+            key = {
+                it.dishId
+            }
+        ) { dish ->
+            DishItem(
+                dish = dish ,
+                modifier = Modifier.animateItem()
+            )
+        }
+    }
+
+}
+

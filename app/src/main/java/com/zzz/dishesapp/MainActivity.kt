@@ -20,11 +20,14 @@ import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.zzz.dishesapp.core.presentation.SearchBar
+import com.zzz.dishesapp.core.presentation.nav.Navigation
+import com.zzz.dishesapp.core.presentation.nav.PhoneNavigationLayout
 import com.zzz.dishesapp.core.presentation.nav.TabNavigationLayout
 import com.zzz.dishesapp.core.presentation.nav.VerticalNavBar
 import com.zzz.dishesapp.feature_recipes.presentation.HomeRoot
 import com.zzz.dishesapp.feature_recipes.presentation.components.DishFilterTabRow
 import com.zzz.dishesapp.feature_recipes.presentation.components.DishItem
+import com.zzz.dishesapp.feature_recipes.presentation.components.ErrorState
 import com.zzz.dishesapp.feature_recipes.presentation.components.HomeTopBar
 import com.zzz.dishesapp.ui.theme.DishesAppTheme
 import com.zzz.dishesapp.ui.theme.background
@@ -44,7 +47,11 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding) ,
 //                        contentAlignment = Alignment.Center
                     ){
-                        TabNavigationLayout()
+//                        Navigation()
+                        ErrorState(
+                            message = "An unknown error occurred",
+                            onRetry = {}
+                        )
                     }
                 }
             }

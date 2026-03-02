@@ -40,6 +40,8 @@ android {
 
 dependencies {
 
+    implementation("androidx.compose.material3:material3-window-size-class")
+
     //koin
     implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.android)

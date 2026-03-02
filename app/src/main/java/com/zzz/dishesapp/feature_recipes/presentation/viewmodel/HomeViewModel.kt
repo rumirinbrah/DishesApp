@@ -1,7 +1,6 @@
 package com.zzz.dishesapp.feature_recipes.presentation.viewmodel
 
 import android.util.Log
-import android.widget.Filterable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zzz.dishesapp.feature_recipes.domain.Result
@@ -17,6 +16,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.collections.filter
 
 class HomeViewModel(
     private val dishesSource: DishesSource
@@ -29,17 +29,19 @@ class HomeViewModel(
     private val _filterTab = MutableStateFlow(DishFilterTab.DISH)
     private val _filterOption = MutableStateFlow("")
 
-    val tempState : StateFlow<HomeState> = combine(dishes,_filterTab,_filterOption){ dishes, tab , filter->
-        val filtered = dishes.filter {
-            when(tab){
-                DishFilterTab.DISH -> {
-                    filter.isBlank() ||it.dishCategory.equals(filter, ignoreCase = true)
-                }
-                DishFilterTab.INGREDIENT -> {
-                    filter.isBlank() ||it.ingredientCategory.equals(filter, ignoreCase = true)
-                }
-            }
-        }
+    private val _query = MutableStateFlow("")
+    val query = _query
+        .asStateFlow()
+
+    private val _filterState = MutableStateFlow(FilterState())
+
+    val homeState : StateFlow<HomeState> = combine(
+        dishes ,
+        _filterTab ,
+        _filterOption ,
+        _query
+    ){ dishes , tab , filter , searchQuery->
+        val filtered = filterDishes(dishes,tab,filter,searchQuery)
         val options = getOtherFilterOptions(tab)
         HomeState(
             filtered ,
@@ -54,16 +56,6 @@ class HomeViewModel(
         HomeState()
     )
 
-    private val _state = MutableStateFlow(HomeState())
-    val state = _state
-        .onStart {
-            getDishes()
-        }
-        .stateIn(
-            viewModelScope ,
-            SharingStarted.WhileSubscribed(5000L) ,
-            _state.value
-        )
 
 
     fun onAction(
@@ -77,6 +69,42 @@ class HomeViewModel(
             is HomeAction.OnFilterOptionChange -> {
                 onFilterOptionChange(action.filter)
             }
+
+            is HomeAction.OnQueryChange ->{
+                onQueryChange(action.query)
+            }
+        }
+    }
+
+    private fun filterDishes(
+        dishes: List<Dish> ,
+        tab: DishFilterTab ,
+        filter: String,
+        searchQuery : String
+    ) : List<Dish>{
+        return dishes.filter {
+            val tabsFilter = when(tab){
+                DishFilterTab.DISH -> {
+                    filter.isBlank() ||it.dishCategory.equals(filter, ignoreCase = true)
+                }
+                DishFilterTab.INGREDIENT -> {
+                    filter.isBlank() ||it.ingredientCategory.equals(filter, ignoreCase = true)
+                }
+            }
+            val searchFilter = it.dishName.contains(searchQuery,true)
+            tabsFilter && searchFilter
+        }
+    }
+
+    private fun onQueryChange(text : String) {
+        viewModelScope.launch {
+            log {
+                "query change : $text"
+            }
+            _query.update {
+                text.trim()
+            }
+
         }
     }
 
@@ -96,11 +124,7 @@ class HomeViewModel(
                     dishes .update {
                         result.data
                     }
-                    _state.update {
-                        it.copy(
-                            filteredDishes = result.data
-                        )
-                    }
+
                     onTabFilterChange(_filterTab.value)
                 }
             }
@@ -115,13 +139,7 @@ class HomeViewModel(
             "onTabFilterChange : $filterTab"
         }
         viewModelScope.launch {
-//            val filters = getOtherFilterOptions(filterTab)
-//            _state.update {
-//                it.copy(
-//                    currentFilter = filterTab,
-//                    filterOptions = filters
-//                )
-//            }
+
             _filterTab.update {
                 filterTab
             }
@@ -139,9 +157,8 @@ class HomeViewModel(
     }
 
     private fun getOtherFilterOptions(filterTab: DishFilterTab) : List<String>{
-        val values = _state.value
         log {
-            "Filterings options for ${_filterTab.value}"
+            "Filtering options for ${_filterTab.value}"
         }
         val filters = when(filterTab){
             DishFilterTab.DISH -> {
@@ -161,7 +178,7 @@ class HomeViewModel(
 
     private fun log(msg: () -> String) {
         if (loggingEnabled) {
-            Log.d("MediaFileManager : " , msg())
+            Log.d("HomeViewModel : " , msg())
         }
     }
 

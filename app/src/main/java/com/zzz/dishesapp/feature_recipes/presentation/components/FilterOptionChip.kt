@@ -1,6 +1,7 @@
 package com.zzz.dishesapp.feature_recipes.presentation.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -10,8 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
@@ -23,15 +26,22 @@ import com.zzz.dishesapp.ui.theme.orange
 fun FilterOptionChip(
     modifier: Modifier = Modifier ,
     text: String ,
-    onClick: (filter : String) -> Unit ,
+    onClick: (filter: String) -> Unit ,
     selected: Boolean = false ,
     style: TextStyle = MaterialTheme.typography.titleMedium
 ) {
     val indicatorColor by animateColorAsState(
-        targetValue = if(selected){
+        targetValue = if (selected) {
             orange
-        }else{
+        } else {
             Color.Gray
+        }
+    )
+    val lineWidth by animateFloatAsState(
+        targetValue = if(selected){
+            1f
+        }else{
+            0f
         }
     )
 
@@ -39,27 +49,22 @@ fun FilterOptionChip(
         modifier
             .drawBehind {
 //                if (selected) {
-//                    drawRoundRect(
-//                        color = orange.copy(0.1f) ,
-//                        cornerRadius = CornerRadius(
-//                            x = 30f ,
-//                            y = 30f
-//                        ) ,
-//                    )
-//                    drawRoundRect(
-//                        color = orange ,
-//                        cornerRadius = CornerRadius(
-//                            x = 30f ,
-//                            y = 30f
-//                        ) ,
-//                        style = Stroke(4f)
-//                    )
+                    drawLine(
+                        orange ,
+                        start = Offset(x = 0f , y = size.height) ,
+                        end = Offset(x = size.width * lineWidth, y = size.height) ,
+                        strokeWidth = 5f
+                    )
 //                }
             }
-            .clickable {
+            .clip(MaterialTheme.shapes.large)
+            .clickable(
+                indication = null,
+                interactionSource = null
+            ) {
                 if (!selected) {
                     onClick(text)
-                }else{
+                } else {
                     onClick("")
                 }
             }
@@ -67,10 +72,10 @@ fun FilterOptionChip(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text,
-            color = indicatorColor,
-            fontWeight = FontWeight.Medium,
-            style =style
+            text ,
+            color = indicatorColor ,
+            fontWeight = FontWeight.Medium ,
+            style = style
         )
     }
 }

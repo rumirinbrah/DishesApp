@@ -5,5 +5,6 @@ import com.zzz.dishesapp.feature_recipes.presentation.components.DishFilterTab
 sealed class HomeAction {
     data class FilterTabChange(val tab: DishFilterTab) : HomeAction()
     data class OnFilterOptionChange(val filter : String) : HomeAction()
+    data class OnQueryChange(val query : String) : HomeAction()
 
 }

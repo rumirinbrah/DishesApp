@@ -35,11 +35,13 @@ fun HomeRoot(
     modifier: Modifier = Modifier
 ) {
     val homeViewModel = koinViewModel<HomeViewModel>()
-    val state by homeViewModel.tempState.collectAsStateWithLifecycle()
+    val state by homeViewModel.homeState.collectAsStateWithLifecycle()
+    val query by homeViewModel.query.collectAsStateWithLifecycle("")
 
     HomePage(
         modifier ,
         state = state,
+        query = query,
         onAction = {
             homeViewModel.onAction(it)
         }
@@ -50,6 +52,7 @@ fun HomeRoot(
 fun HomePage(
     modifier: Modifier = Modifier ,
     state: HomeState = HomeState() ,
+    query : String ,
     onAction : (action : HomeAction)->Unit
 ) {
 
@@ -63,7 +66,12 @@ fun HomePage(
             ,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            HomeTopBar()
+            HomeTopBar(
+                query = query,
+                onQueryChange = {
+                    onAction(HomeAction.OnQueryChange(it))
+                }
+            )
 
 //            VerticalSpace(10.dp)
 
@@ -87,6 +95,11 @@ fun HomePage(
                     fontWeight = FontWeight.Bold
                 )
 
+                VerticalSpace(5.dp)
+                HorizontalDivider(
+                    Modifier.width(70.dp)
+                )
+
                 AnimatedContent(
                     state.filterOptions
                 ) {filters->
@@ -106,39 +119,27 @@ fun HomePage(
                         }
                     }
                 }
-                HorizontalDivider(
-                    Modifier.width(70.dp)
-                )
+
             }
 
             VerticalSpace()
             //-------DISHES--------
-            FlowRow(
-                Modifier.fillMaxWidth()
-//                    .background(Color.Gray)
-//                    .padding(horizontal = 16.dp)
-                ,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                state.filteredDishes.onEach { dish ->
-                    DishItem(
-                        dish = dish
-                    )
+            AnimatedContent(state.filteredDishes) {dishes->
+
+                FlowRow(
+                    Modifier.fillMaxWidth()
+    //                    .background(Color.Gray)
+    //                    .padding(horizontal = 16.dp)
+                    ,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    dishes.onEach { dish ->
+                        DishItem(
+                            dish = dish
+                        )
+                    }
                 }
-//                item {
-//                    HorizontalSpace()
-//                }
-//                items(
-//                    state.filteredDishes,
-//                    key = {
-//                        it.dishId
-//                    }
-//                ) {dish->
-//                    DishItem(
-//                        dish = dish
-//                    )
-//                }
             }
 
         }

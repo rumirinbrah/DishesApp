@@ -19,7 +19,9 @@ import com.zzz.dishesapp.core.presentation.SearchBar
 */
 @Composable
 fun HomeTopBar(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    query : String,
+    onQueryChange : (String)->Unit
 ) {
     Row(
         modifier
@@ -28,9 +30,9 @@ fun HomeTopBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         SearchBar(
-            query = "" ,
+            query = query ,
             onQueryChange = {
-
+                onQueryChange(it)
             },
             modifier = Modifier.weight(1f)
 //                .height(42.dp),

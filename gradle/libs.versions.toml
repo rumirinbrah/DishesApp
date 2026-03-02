@@ -46,7 +46,7 @@ koin-compose-viewmodel ={module="io.insert-koin:koin-core-viewmodel"}
 
 #ktor
 ktor-client-core = {group="io.ktor",name="ktor-client-core",version.ref = "ktorVersion"}
-ktor-client-okhttp = {group="io.ktor" , name="ktor-client-cio",version.ref = "ktorVersion"}
+ktor-client-okhttp = {group="io.ktor" , name="ktor-client-okhttp",version.ref = "ktorVersion"}
 ktor-content-negotiation = {group="io.ktor" , name="ktor-client-content-negotiation",version.ref = "ktorVersion"}
 ktor-serialization = {group="io.ktor" , name="ktor-serialization-kotlinx-json",version.ref = "ktorVersion"}
 

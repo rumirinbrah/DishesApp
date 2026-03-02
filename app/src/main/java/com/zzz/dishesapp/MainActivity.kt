@@ -4,17 +4,30 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.zzz.dishesapp.core.presentation.SearchBar
+import com.zzz.dishesapp.core.presentation.nav.TabNavigationLayout
 import com.zzz.dishesapp.core.presentation.nav.VerticalNavBar
+import com.zzz.dishesapp.feature_recipes.presentation.HomeRoot
+import com.zzz.dishesapp.feature_recipes.presentation.components.DishFilterTabRow
+import com.zzz.dishesapp.feature_recipes.presentation.components.DishItem
+import com.zzz.dishesapp.feature_recipes.presentation.components.HomeTopBar
 import com.zzz.dishesapp.ui.theme.DishesAppTheme
+import com.zzz.dishesapp.ui.theme.background
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,11 +35,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DishesAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android" ,
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
+                    Box(
+                        Modifier.fillMaxSize()
+                            .background(background)
+                            .padding(innerPadding) ,
+//                        contentAlignment = Alignment.Center
+                    ){
+                        TabNavigationLayout()
+                    }
                 }
             }
         }
@@ -41,10 +60,23 @@ fun Greeting(name: String , modifier: Modifier = Modifier) {
     )
 }
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true,
+    widthDp = 600,
+    heightDp = 960
+)
 @Composable
 fun GreetingPreview() {
     DishesAppTheme {
-        VerticalNavBar()
+        Box(
+            Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            DishFilterTabRow(
+                onTabChange = {tab->
+
+                }
+            )
+        }
     }
 }

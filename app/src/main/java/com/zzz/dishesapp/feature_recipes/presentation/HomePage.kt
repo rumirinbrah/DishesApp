@@ -35,7 +35,7 @@ fun HomeRoot(
     modifier: Modifier = Modifier
 ) {
     val homeViewModel = koinViewModel<HomeViewModel>()
-    val state by homeViewModel.state.collectAsStateWithLifecycle()
+    val state by homeViewModel.tempState.collectAsStateWithLifecycle()
 
     HomePage(
         modifier ,
@@ -95,13 +95,13 @@ fun HomePage(
                             .padding(vertical = 8.dp , horizontal = 26.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(filters){
+                        items(filters){filter->
                             FilterOptionChip(
-                                text = it ,
+                                text = filter ,
                                 onClick = {
-
+                                    onAction(HomeAction.OnFilterOptionChange(it))
                                 } ,
-                                selected = true
+                                selected = state.selectedFilter == filter
                             )
                         }
                     }

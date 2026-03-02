@@ -23,7 +23,7 @@ import com.zzz.dishesapp.ui.theme.orange
 fun FilterOptionChip(
     modifier: Modifier = Modifier ,
     text: String ,
-    onClick: () -> Unit ,
+    onClick: (filter : String) -> Unit ,
     selected: Boolean = false ,
     style: TextStyle = MaterialTheme.typography.titleMedium
 ) {
@@ -58,7 +58,9 @@ fun FilterOptionChip(
             }
             .clickable {
                 if (!selected) {
-                    onClick()
+                    onClick(text)
+                }else{
+                    onClick("")
                 }
             }
             .padding(horizontal = 12.dp , vertical = 8.dp) ,

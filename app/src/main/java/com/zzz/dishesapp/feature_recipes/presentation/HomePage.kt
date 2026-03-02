@@ -1,6 +1,7 @@
 package com.zzz.dishesapp.feature_recipes.presentation
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -15,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,11 +32,13 @@ import com.zzz.dishesapp.core.presentation.VerticalSpace
 import com.zzz.dishesapp.feature_recipes.domain.model.Dish
 import com.zzz.dishesapp.feature_recipes.presentation.components.DishFilterTabRow
 import com.zzz.dishesapp.feature_recipes.presentation.components.DishItem
+import com.zzz.dishesapp.feature_recipes.presentation.components.ErrorComponent
 import com.zzz.dishesapp.feature_recipes.presentation.components.FilterOptionChip
 import com.zzz.dishesapp.feature_recipes.presentation.components.HomeTopBar
 import com.zzz.dishesapp.feature_recipes.presentation.viewmodel.HomeAction
 import com.zzz.dishesapp.feature_recipes.presentation.viewmodel.HomeState
 import com.zzz.dishesapp.feature_recipes.presentation.viewmodel.HomeViewModel
+import com.zzz.dishesapp.ui.theme.orange
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -43,17 +48,28 @@ fun HomeRoot(
 ) {
     val homeViewModel = koinViewModel<HomeViewModel>()
     val state by homeViewModel.homeState.collectAsStateWithLifecycle()
-//    val query by homeViewModel.query.collectAsStateWithLifecycle("")
 
-    HomePage(
-        modifier ,
-        state = state ,
-//        query = query,
-        onAction = {
-            homeViewModel.onAction(it)
-        } ,
-        isPhone = isPhone
-    )
+    when{
+        state.errorMsg!=null->{
+            ErrorComponent(
+                message = state.errorMsg ?: "",
+                onRetry = {
+                    homeViewModel.onAction(HomeAction.Retry)
+                }
+            )
+        }
+        else->{
+            HomePage(
+                modifier ,
+                state = state ,
+                onAction = {
+                    homeViewModel.onAction(it)
+                } ,
+                isPhone = isPhone
+            )
+        }
+    }
+
 }
 
 @Composable
@@ -68,6 +84,7 @@ fun HomePage(
     Box(
         Modifier.fillMaxSize()
     ) {
+
         Column(
             modifier
                 .fillMaxWidth()
@@ -80,6 +97,17 @@ fun HomePage(
                     onAction(HomeAction.OnQueryChange(it))
                 }
             )
+            //Loading
+            AnimatedVisibility(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                visible = state.loading
+            ) {
+                CircularProgressIndicator(
+                    Modifier.size(30.dp),
+                    color = orange,
+                    strokeWidth = 2.dp
+                )
+            }
 
 //            VerticalSpace(10.dp)
 
@@ -122,7 +150,7 @@ fun HomePage(
                                 onClick = {
                                     onAction(HomeAction.OnFilterOptionChange(it))
                                 } ,
-                                selected = state.selectedFilter == filter
+                                selected = state.filter == filter
                             )
                         }
                     }

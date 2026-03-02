@@ -23,44 +23,53 @@ class HomeViewModel(
 
     private val loggingEnabled = true
 
-    private var dishes = MutableStateFlow<List<Dish>>(emptyList())
+    private var dishes : List<Dish> = emptyList()
 
-    private val _filterState = MutableStateFlow(FilterState())
+//    private val _filterState = MutableStateFlow(FilterState())
 
-    val homeState : StateFlow<HomeState> = combine(
-        dishes ,
-        _filterState
-    ){ dishes , filterState->
+    //    val homeState : StateFlow<HomeState> = combine(
+//        dishes ,
+//        _filterState
+//    ){ dishes , filterState->
+//
+//        //-----FILTER DISHES------
+//        val filtered = filterDishes(
+//            dishes ,
+//            filterState.filterTab ,
+//            filterState.filter ,
+//            filterState.query
+//        )
+//        val options = getOtherFilterOptions(filterState.filterTab)
+//
+//        HomeState(
+//            filtered ,
+//            options,
+//            selectedFilter = filterState.filter,
+//            query = filterState.query
+//        )
+//    }.onStart {
+//        getDishes()
+//    }.stateIn(
+//        viewModelScope ,
+//        SharingStarted.WhileSubscribed(5000L) ,
+//        HomeState()
+//    )
 
-        //-----FILTER DISHES------
-        val filtered = filterDishes(
-            dishes ,
-            filterState.filterTab ,
-            filterState.filter ,
-            filterState.query
+    private val _homeState = MutableStateFlow(HomeState())
+    val homeState = _homeState
+        .onStart {
+            getDishes()
+        }.stateIn(
+            viewModelScope ,
+            SharingStarted.WhileSubscribed(5000L) ,
+            _homeState.value
         )
-        val options = getOtherFilterOptions(filterState.filterTab)
-
-        HomeState(
-            filtered ,
-            options,
-            selectedFilter = filterState.filter,
-            query = filterState.query
-        )
-    }.onStart {
-        getDishes()
-    }.stateIn(
-        viewModelScope ,
-        SharingStarted.WhileSubscribed(5000L) ,
-        HomeState()
-    )
-
 
 
     fun onAction(
         action: HomeAction
-    ){
-        when(action){
+    ) {
+        when (action) {
             is HomeAction.FilterTabChange -> {
                 onTabFilterChange(action.tab)
             }
@@ -69,8 +78,12 @@ class HomeViewModel(
                 onFilterOptionChange(action.filter)
             }
 
-            is HomeAction.OnQueryChange ->{
+            is HomeAction.OnQueryChange -> {
                 onQueryChange(action.query)
+            }
+
+            HomeAction.Retry->{
+                retry()
             }
         }
     }
@@ -78,45 +91,66 @@ class HomeViewModel(
     /**
      * Filter on the basis of tab, selected option & search query
      * @author zyzz
-    */
+     */
     private fun filterDishes(
         dishes: List<Dish> ,
         tab: DishFilterTab ,
-        filter: String,
-        searchQuery : String
-    ) : List<Dish>{
+        filter: String ,
+        searchQuery: String
+    ): List<Dish> {
         return dishes.filter {
-            val tabsFilter = when(tab){
+            val tabsFilter = when (tab) {
                 DishFilterTab.DISH -> {
-                    filter.isBlank() ||it.dishCategory.equals(filter, ignoreCase = true)
+                    filter.isBlank() || it.dishCategory.equals(filter , ignoreCase = true)
                 }
+
                 DishFilterTab.INGREDIENT -> {
-                    filter.isBlank() ||it.ingredientCategory.equals(filter, ignoreCase = true)
+                    filter.isBlank() || it.ingredientCategory.equals(filter , ignoreCase = true)
                 }
             }
-            val searchFilter = it.dishName.contains(searchQuery,true)
+            val searchFilter = it.dishName.contains(searchQuery , true)
             tabsFilter && searchFilter
         }
     }
 
-    private fun onQueryChange(text : String) {
+    private fun onQueryChange(text: String) {
         viewModelScope.launch {
             log {
                 "query change : $text"
             }
-            _filterState.update {
-                it.copy(query = text)
+            val searchResults = dishes.filter {
+                it.dishName.contains(text,true) ||
+                        it.dishCategory.contains(text,true) ||
+                        it.ingredientCategory.contains(text,true)
             }
+            _homeState.update {
+                it.copy(
+                    query = text,
+                    filteredDishes = searchResults
+                )
+            }
+
 
         }
     }
 
     private fun getDishes() {
         viewModelScope.launch {
+            _homeState.update {
+                it.copy(
+                    loading = true
+                )
+            }
             when (val result = dishesSource.getDishes()) {
                 is Result.Error -> {
                     log {
                         "getDishes : Error ${result.error}"
+                    }
+                    _homeState.update {
+                        it.copy(
+                            loading = false,
+                            errorMsg = result.error.errorMsg
+                        )
                     }
                 }
 
@@ -124,8 +158,20 @@ class HomeViewModel(
                     log {
                         "getDishes : Success! ${result.data}"
                     }
-                    dishes .update {
-                        result.data
+                    dishes = result.data
+                    val filtered = filterDishes(
+                        dishes ,
+                        _homeState.value.filterTab ,
+                        _homeState.value.filter ,
+                        _homeState.value.query
+                    )
+                    val options = getOtherFilterOptions(_homeState.value.filterTab)
+                    _homeState.update {
+                        it.copy(
+                            filteredDishes = filtered,
+                            filterOptions = options,
+                            loading = false
+                        )
                     }
 
 //                    onTabFilterChange(_filterTab.value)
@@ -137,24 +183,38 @@ class HomeViewModel(
 
     private fun onTabFilterChange(
         filterTab: DishFilterTab
-    ){
+    ) {
         log {
             "onTabFilterChange : $filterTab"
         }
         viewModelScope.launch {
-
-            _filterState.update {
+            val options = getOtherFilterOptions(filterTab)
+            _homeState.update {
                 it.copy(
-                    filterTab = filterTab,
-                    filter = ""
+                    filterOptions = options,
+                    filterTab = filterTab ,
+                    filter = "",
                 )
             }
         }
     }
-    private fun onFilterOptionChange(filter : String){
+
+    private fun onFilterOptionChange(filter: String) {
         viewModelScope.launch {
-            _filterState.update {
-                it.copy(filter = filter)
+            log {
+                "Filter is $filter"
+            }
+            val filtered = filterDishes(
+                dishes ,
+                _homeState.value.filterTab ,
+                filter ,
+                _homeState.value.query
+            )
+            _homeState.update {
+                it.copy(
+                    filter = filter,
+                    filteredDishes = filtered
+                )
             }
         }
     }
@@ -162,24 +222,32 @@ class HomeViewModel(
     /**
      * Get all filterable options for the selected TAB
      * @author zyzz
-    */
-    private fun getOtherFilterOptions(filterTab: DishFilterTab) : List<String>{
+     */
+    private fun getOtherFilterOptions(filterTab: DishFilterTab): List<String> {
         log {
             "Filtering options for ${filterTab}"
         }
-        val filters = when(filterTab){
+        val filters = when (filterTab) {
             DishFilterTab.DISH -> {
-                dishes.value.map {
+                dishes.map {
                     it.dishCategory
                 }.distinct()
             }
+
             DishFilterTab.INGREDIENT -> {
-                dishes.value.map {
+                dishes.map {
                     it.ingredientCategory
                 }.distinct()
             }
         }
         return filters
+    }
+
+    private fun retry(){
+        _homeState.update {
+            it.copy(errorMsg = null)
+        }
+        getDishes()
     }
 
 

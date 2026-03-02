@@ -7,4 +7,6 @@ sealed class HomeAction {
     data class OnFilterOptionChange(val filter : String) : HomeAction()
     data class OnQueryChange(val query : String) : HomeAction()
 
+    data object Retry : HomeAction()
+
 }

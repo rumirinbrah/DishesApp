@@ -8,27 +8,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.zzz.dishesapp.core.presentation.SearchBar
 import com.zzz.dishesapp.core.presentation.nav.Navigation
-import com.zzz.dishesapp.core.presentation.nav.PhoneNavigationLayout
-import com.zzz.dishesapp.core.presentation.nav.TabNavigationLayout
-import com.zzz.dishesapp.core.presentation.nav.VerticalNavBar
-import com.zzz.dishesapp.feature_recipes.presentation.HomeRoot
 import com.zzz.dishesapp.feature_recipes.presentation.components.DishFilterTabRow
-import com.zzz.dishesapp.feature_recipes.presentation.components.DishItem
-import com.zzz.dishesapp.feature_recipes.presentation.components.ErrorState
-import com.zzz.dishesapp.feature_recipes.presentation.components.HomeTopBar
 import com.zzz.dishesapp.ui.theme.DishesAppTheme
 import com.zzz.dishesapp.ui.theme.background
 
@@ -47,11 +34,11 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding) ,
 //                        contentAlignment = Alignment.Center
                     ){
-//                        Navigation()
-                        ErrorState(
-                            message = "An unknown error occurred",
-                            onRetry = {}
-                        )
+                        Navigation()
+//                        ErrorState(
+//                            message = "An unknown error occurred",
+//                            onRetry = {}
+//                        )
                     }
                 }
             }

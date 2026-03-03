@@ -35,7 +35,6 @@ fun HomeTopBar(
                 onQueryChange(it)
             },
             modifier = Modifier.weight(1f)
-//                .height(42.dp),
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,

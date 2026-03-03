@@ -1,5 +1,6 @@
 package com.zzz.dishesapp.feature_recipes.domain
 
+//Remote errors
 enum class NetworkError(val errorMsg : String) : Error {
     ERROR_UNKNOWN("Oops! An unknown error occurred!"),
     SERIALIZATION_ERROR("Something went wrong"),

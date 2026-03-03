@@ -44,13 +44,6 @@ fun DishItem(
     dish : Dish,
     shape : androidx.compose.ui.graphics.Shape = MaterialTheme.shapes.medium
 ) {
-    val density = LocalDensity.current
-    val config = LocalWindowInfo.current
-    val itemWidth = remember(config) {
-        with(density){
-            config.containerSize.width.toDp()/4
-        }
-    }
 
     Column(
         modifier

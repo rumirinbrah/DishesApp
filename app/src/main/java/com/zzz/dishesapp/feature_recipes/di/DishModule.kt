@@ -10,6 +10,7 @@ import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
+//DI module
 val dishModule = module {
 
     single<HttpClient> {

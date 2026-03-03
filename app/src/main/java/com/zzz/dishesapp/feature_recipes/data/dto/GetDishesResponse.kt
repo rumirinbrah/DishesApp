@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
  * API Response
  * @author zyzz
  */
+@Deprecated("The api doesnt response with a json")
 @Serializable
 data class GetDishesResponse(
     val dishes: List<Dish>

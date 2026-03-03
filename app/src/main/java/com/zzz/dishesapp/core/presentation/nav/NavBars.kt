@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.innerShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
@@ -37,10 +35,12 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.zzz.dishesapp.R
 import com.zzz.dishesapp.core.presentation.VerticalSpace
-import com.zzz.dishesapp.ui.theme.background
-import com.zzz.dishesapp.ui.theme.lightGray
 import com.zzz.dishesapp.ui.theme.orange
 
+/**
+ * For tab
+ * @author zyzz
+*/
 @Composable
 fun VerticalNavBar(
     modifier: Modifier = Modifier
@@ -119,6 +119,10 @@ fun VerticalNavBar(
     }
 }
 
+/**
+ * For phone
+ * @author zyzz
+*/
 @Composable
 fun HorizontalNavBar(
     modifier: Modifier = Modifier

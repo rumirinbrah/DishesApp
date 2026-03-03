@@ -4,6 +4,10 @@ package com.zzz.dishesapp.feature_recipes.domain
 interface Error
 typealias DomainError = Error
 
+/**
+ * Util
+ * @author zyzz
+*/
 sealed interface Result<out D , out E : Error> {
 
     data class Success<out D>(val data: D) : Result<D , Nothing>

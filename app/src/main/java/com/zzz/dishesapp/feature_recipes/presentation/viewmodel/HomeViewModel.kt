@@ -25,36 +25,6 @@ class HomeViewModel(
 
     private var dishes : List<Dish> = emptyList()
 
-//    private val _filterState = MutableStateFlow(FilterState())
-
-    //    val homeState : StateFlow<HomeState> = combine(
-//        dishes ,
-//        _filterState
-//    ){ dishes , filterState->
-//
-//        //-----FILTER DISHES------
-//        val filtered = filterDishes(
-//            dishes ,
-//            filterState.filterTab ,
-//            filterState.filter ,
-//            filterState.query
-//        )
-//        val options = getOtherFilterOptions(filterState.filterTab)
-//
-//        HomeState(
-//            filtered ,
-//            options,
-//            selectedFilter = filterState.filter,
-//            query = filterState.query
-//        )
-//    }.onStart {
-//        getDishes()
-//    }.stateIn(
-//        viewModelScope ,
-//        SharingStarted.WhileSubscribed(5000L) ,
-//        HomeState()
-//    )
-
     private val _homeState = MutableStateFlow(HomeState())
     val homeState = _homeState
         .onStart {
@@ -243,6 +213,10 @@ class HomeViewModel(
         return filters
     }
 
+    /**
+     * Retry on failure
+     * @author zyzz
+    */
     private fun retry(){
         _homeState.update {
             it.copy(errorMsg = null)

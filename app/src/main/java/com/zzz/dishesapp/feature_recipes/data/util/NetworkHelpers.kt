@@ -11,6 +11,12 @@ import com.zzz.dishesapp.feature_recipes.domain.Result
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 
+
+/**
+ *
+ *
+ * @author zyzz
+*/
 suspend inline fun <reified T> safeNetworkCall(
     coroutineContext : CoroutineDispatcher = Dispatchers.IO,
     crossinline block: suspend () -> HttpResponse,
@@ -30,6 +36,11 @@ suspend inline fun <reified T> safeNetworkCall(
         return@withContext responseToResult(response)
     }
 }
+
+/**
+ * Map response to result
+ * @author zyzz
+*/
 suspend inline fun<reified T> responseToResult(
     response : HttpResponse
 ) : Result<T , NetworkError> {

@@ -3,6 +3,10 @@ package com.zzz.dishesapp.feature_recipes.domain.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Model
+ * @author zyzz
+*/
 @Serializable
 data class Dish(
     val dishId: String,

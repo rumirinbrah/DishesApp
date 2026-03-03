@@ -25,7 +25,11 @@ import com.zzz.dishesapp.ui.theme.lightGray
 import com.zzz.dishesapp.ui.theme.orange
 
 
-
+/**
+ * Custom tab item for tab rows
+ *
+ * @author zyzz
+*/
 @Composable
 fun TabOption(
     modifier: Modifier = Modifier,

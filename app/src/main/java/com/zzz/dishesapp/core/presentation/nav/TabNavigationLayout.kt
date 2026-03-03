@@ -21,9 +21,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.zzz.dishesapp.core.presentation.HorizontalSpace
-import com.zzz.dishesapp.feature_recipes.presentation.HomePage
 import com.zzz.dishesapp.feature_recipes.presentation.HomeRoot
 
+/**
+ * Decides the type of layout.
+ *
+ * @author zyzz
+*/
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun Navigation(
@@ -41,6 +45,10 @@ fun Navigation(
     }
 }
 
+/**
+ * Large devices
+ * @author zyzz
+*/
 @Composable
 fun TabNavigationLayout(
     modifier: Modifier = Modifier
@@ -57,7 +65,10 @@ fun TabNavigationLayout(
         )
     }
 }
-
+/**
+ * Small devices
+ * @author zyzz
+ */
 @Composable
 fun PhoneNavigationLayout(
     modifier: Modifier = Modifier

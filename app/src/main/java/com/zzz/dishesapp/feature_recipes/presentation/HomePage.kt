@@ -76,7 +76,6 @@ fun HomeRoot(
 fun HomePage(
     modifier: Modifier = Modifier ,
     state: HomeState = HomeState() ,
-//    query : String ,
     onAction: (action: HomeAction) -> Unit ,
     isPhone: Boolean
 ) {
@@ -97,7 +96,7 @@ fun HomePage(
                     onAction(HomeAction.OnQueryChange(it))
                 }
             )
-            //Loading
+            //-------LOADING--------
             AnimatedVisibility(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 visible = state.loading
@@ -109,8 +108,6 @@ fun HomePage(
                 )
             }
 
-//            VerticalSpace(10.dp)
-
             //-------FILTER ROW--------
             DishFilterTabRow(
                 Modifier.align(Alignment.CenterHorizontally) ,
@@ -119,44 +116,17 @@ fun HomePage(
                 }
             )
 
-            VerticalSpace(5.dp)
             //-------CHIPS------
-            Column(
+            VerticalSpace(5.dp)
+            FilterOptions(
                 Modifier
-                    .align(Alignment.CenterHorizontally) ,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    "Filter options" ,
-                    fontWeight = FontWeight.Bold
-                )
-
-                VerticalSpace(5.dp)
-                HorizontalDivider(
-                    Modifier.width(70.dp)
-                )
-
-                AnimatedContent(
-                    state.filterOptions
-                ) { filters ->
-                    LazyRow(
-                        Modifier
-                            .padding(vertical = 8.dp , horizontal = 26.dp) ,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(filters) { filter ->
-                            FilterOptionChip(
-                                text = filter ,
-                                onClick = {
-                                    onAction(HomeAction.OnFilterOptionChange(it))
-                                } ,
-                                selected = state.filter == filter
-                            )
-                        }
-                    }
-                }
-
-            }
+                    .align(Alignment.CenterHorizontally),
+                options = state.filterOptions,
+                onClick = {
+                    onAction(HomeAction.OnFilterOptionChange(it))
+                },
+                currentFilter = state.filter
+            )
 
             //-------DISHES--------
             if (isPhone) {
@@ -178,7 +148,51 @@ fun HomePage(
 }
 
 @Composable
-fun DishesFlowContainer(
+private fun FilterOptions(
+    modifier: Modifier = Modifier,
+    options : List<String>,
+    onClick : (option : String) ->Unit,
+    currentFilter : String,
+) {
+    Column(
+        modifier ,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            "Filter options" ,
+            fontWeight = FontWeight.Bold
+        )
+
+        VerticalSpace(5.dp)
+        HorizontalDivider(
+            Modifier.width(70.dp)
+        )
+
+        AnimatedContent(
+            options
+        ) { filters ->
+            LazyRow(
+                Modifier
+                    .padding(vertical = 8.dp , horizontal = 26.dp) ,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(filters) { filter ->
+                    FilterOptionChip(
+                        text = filter ,
+                        onClick = {
+                            onClick(it)
+                        } ,
+                        selected = currentFilter == filter
+                    )
+                }
+            }
+        }
+
+    }
+}
+
+@Composable
+private fun DishesFlowContainer(
     modifier: Modifier = Modifier ,
     dishes: List<Dish>
 ) {
@@ -201,7 +215,7 @@ fun DishesFlowContainer(
 }
 
 @Composable
-fun DishesGrid(
+private fun DishesGrid(
     modifier: Modifier = Modifier ,
     dishes: List<Dish> ,
     maxItems: Int = 2 ,

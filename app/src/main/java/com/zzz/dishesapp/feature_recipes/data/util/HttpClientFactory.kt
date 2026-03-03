@@ -7,6 +7,12 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
+
+/**
+ * For http calls with ktor
+ *
+ * @author zyzz
+*/
 object HttpClientFactory {
     fun create(
         engine: HttpClientEngine
@@ -14,6 +20,7 @@ object HttpClientFactory {
         return HttpClient(engine){
             expectSuccess = false
 
+            //-----------SERIALIZATION-----------
             install(ContentNegotiation){
                 json(
                     json= Json{
